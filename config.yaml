@@ -1,0 +1,19 @@
+
+model_list:
+  - model_name: bankassist
+    litellm_params:
+      model: groq/openai/gpt-oss-20b
+      api_key: os.environ/API_KEY
+
+  - model_name: bankassist-backup
+    litellm_params:
+      model: groq/openai/gpt-oss-120b
+      api_key: os.environ/API_KEY
+
+router_settings:
+  num_retries: 1
+  timeout: 30
+  fallbacks: [{"bankassist": ["bankassist-backup"]}]
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY

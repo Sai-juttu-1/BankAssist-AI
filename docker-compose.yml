@@ -1,0 +1,38 @@
+
+services:
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    env_file:
+      - .env
+    command: ["--config", "/app/config.yaml", "--host", "0.0.0.0", "--port", "4000"]
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    environment:
+      BASE_URL: http://litellm:4000/v1
+      MODEL: bankassist
+      API_KEY: ${LITELLM_MASTER_KEY}
+    depends_on:
+      - litellm
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "8501:8501"
+    environment:
+      API_URL: http://backend:8001
+    depends_on:
+      - backend
